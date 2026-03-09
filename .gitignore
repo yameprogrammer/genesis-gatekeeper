@@ -14,3 +14,7 @@ logs/*.log
 # Go dependencies
 vendor/
 go.sum
+
+#my file
+start.sh
+.env.example

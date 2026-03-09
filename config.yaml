@@ -1,0 +1,11 @@
+telegram:
+  bot_token: "YOUR_TELEGRAM_BOT_TOKEN"
+  whitelist: 
+    - 123456789 # Replace with your User ID
+monitor:
+  interval_seconds: 60
+  thresholds:
+    cpu_percent: 90.0
+    mem_percent: 90.0
+    battery_low: 20
+    latency_high_ms: 500
