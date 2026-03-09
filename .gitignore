@@ -1,0 +1,16 @@
+# Binaries
+genesis-gatekeeper
+*.exe
+*.bin
+
+# Logs
+logs/*.log
+
+# Env & Secrets
+.env
+*.pem
+*.key
+
+# Go dependencies
+vendor/
+go.sum
