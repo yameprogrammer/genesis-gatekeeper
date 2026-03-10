@@ -1,5 +1,5 @@
 # Binaries
-genesis-gatekeeper
+dist/genesis-gatekeeper
 *.exe
 *.bin
 
