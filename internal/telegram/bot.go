@@ -110,14 +110,24 @@ func (b *Bot) CheckWhitelist(userID int64) bool {
 	return false
 }
 
-// SendAlert pushes a message to all whitelisted users
+// SendAlert pushes a message to all whitelisted users using Markdown parsing
 func (b *Bot) SendAlert(message string) {
-	slog.Warn("Sending alert", "message", message)
+	slog.Warn("Sending markdown alert", "message", message)
+	b.broadcastText(message, tele.ModeMarkdown)
+}
+
+// SendAdminHTML pushes a message to all whitelisted users using HTML parsing
+func (b *Bot) SendAdminHTML(message string) {
+	slog.Warn("Sending HTML alert", "message", message)
+	b.broadcastText(message, tele.ModeHTML)
+}
+
+func (b *Bot) broadcastText(message string, mode string) {
 	for _, id := range b.config.Telegram.Whitelist {
 		chat := &tele.Chat{ID: id}
-		_, err := b.api.Send(chat, message, &tele.SendOptions{ParseMode: tele.ModeMarkdown})
+		_, err := b.api.Send(chat, message, &tele.SendOptions{ParseMode: mode})
 		if err != nil {
-			slog.Error("Failed to send alert", "user_id", id, "error", err)
+			slog.Error("Failed to broadcast message", "user_id", id, "error", err)
 		}
 	}
 }

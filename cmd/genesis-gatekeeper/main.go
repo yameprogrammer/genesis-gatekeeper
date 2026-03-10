@@ -50,6 +50,14 @@ func main() {
 	}
 	slog.Info("Starting Genesis-Gatekeeper...")
 
+	// 1.5. Initialize Auth Logger
+	if err := logger.InitAuthLogger(); err != nil {
+		slog.Error("Failed to initialize Auth Logger", "error", err)
+	} else {
+		defer logger.CloseAuthLogger()
+	}
+
+
 	// 2. Daemon PID file creation
 	if err := writePID(); err != nil {
 		slog.Error("Failed to create PID file", "error", err)
@@ -98,9 +106,12 @@ func main() {
 
 	go bot.Start()
 	
-	// 6. Start Monitoring Routines
-	monitor.StartAll(ctx, cfg, bot)
-	slog.Info("Monitoring routines started")
+	// 6. Start Tracking & Health Monitoring Routines
+	monitor.StartHealthMonitor(ctx, cfg, bot)
+	slog.Info("Health Monitor started")
+
+	// 6.5 Start Security Report Cron
+	telegram.StartSecurityCron(bot)
 
 	// 7. Start Log Retention Worker
 	logger.StartRetentionWorker(ctx)
@@ -117,6 +128,7 @@ func main() {
 	_, shutdownCancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer shutdownCancel()
 
+	telegram.StopSecurityCron()
 	bot.Stop()
 	
 	slog.Info("Genesis-Gatekeeper stopped gracefully.")
