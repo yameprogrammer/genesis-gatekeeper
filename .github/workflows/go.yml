@@ -1,7 +1,7 @@
 # This workflow will build a golang project
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
 
-name: Go
+name: Go Build and Release
 
 on:
   push:
@@ -14,12 +14,30 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
 
     - name: Set up Go
       uses: actions/setup-go@v4
       with:
         go-version: '1.26'
+        cache: true
 
-    - name: Build
-      run: CGO_ENABLED=0 GOOS=android GOARCH=arm64 go build -o ./dist/genesis-gatekeeper-arm64 ./cmd/genesis-gatekeeper
+    - name: Install dependencies
+      run: |
+        go mod tidy
+        go mod download
+
+    - name: Create dist directory
+      run: mkdir -p ./dist
+
+    - name: Build for Android/ARM64
+      run: |
+        CGO_ENABLED=0 GOOS=android GOARCH=arm64 \
+        go build -o ./dist/genesis-gatekeeper-arm64 ./cmd/genesis-gatekeeper
+
+    - name: Upload Artifact
+      uses: actions/ipload-artifact@v4
+      with:
+        name: genesis-gatekeeper-binaries
+        path: ./dist/genesis-gatekeeper-arm64
